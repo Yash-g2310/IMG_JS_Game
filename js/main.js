@@ -1,17 +1,17 @@
 import { Player } from "./player.js";
 import { InputHandler } from "./input.js";
 import { Background } from "./background.js";
-import { FlyingEnemy, ClimbingEnemy,GroundEnemy } from "./enemies.js";
+import { FlyingEnemy, ClimbingEnemy, GroundEnemy } from "./enemies.js";
 import { UI } from "./UI.js";
 
-window.addEventListener('load',()=>{
+window.addEventListener('load', () => {
     const canvas = document.getElementById("canvas1");
     const ctx = canvas.getContext("2d");
     canvas.width = 900;
     canvas.height = 500;
 
-    class Game{
-        constructor(width,height){
+    class Game {
+        constructor(width, height) {
             this.width = width;
             this.height = height;
             this.groundMargin = 80;
@@ -40,79 +40,116 @@ window.addEventListener('load',()=>{
             this.player.currentState.enter();
             this.changeBackground = true;
         }
-        update(deltaTime){
-            this.time += deltaTime;
-            if(this.time> this.maxTime) this.gameOver = true;
-            this.background.update();
-            this.player.update(this.input.keys,deltaTime);
-            // handle enemy
-            if(this.enemyTimer>this.enemyInterval){
-                this.enemyTimer= 0;
-                this.addEnemy();
-            } else this.enemyTimer+=deltaTime;
-            this.enemies.forEach(enemy=>{
-                enemy.update(deltaTime);
-            })
-            // handle Messages
-            this.floatingMessages.forEach(message=>{
-                message.update();
-            })
 
-            //handle parcticles
-            this.particles.forEach((particle,index) => {
+        update(deltaTime) {
+            this.time += deltaTime;
+            if (this.time > this.maxTime) this.gameOver = true;
+            this.background.update();
+            this.player.update(this.input.keys, deltaTime);
+            // handle enemy
+            if (this.enemyTimer > this.enemyInterval) {
+                this.enemyTimer = 0;
+                this.addEnemy();
+            } else this.enemyTimer += deltaTime;
+            this.enemies.forEach(enemy => {
+                enemy.update(deltaTime);
+            });
+            // handle Messages
+            this.floatingMessages.forEach(message => {
+                message.update();
+            });
+
+            // handle particles
+            this.particles.forEach((particle, index) => {
                 particle.update();
-            })
-            if( this.particles.length>this.maxParticles){
+            });
+            if (this.particles.length > this.maxParticles) {
                 this.particles.length = this.maxParticles;
             }
-            // console.log(this.particles);
+
             // handle collision sprites
-            this.collisions.forEach((collision,index) =>{
+            this.collisions.forEach((collision, index) => {
                 collision.update(deltaTime);
-            })
+            });
 
             this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
             this.particles = this.particles.filter(particle => !particle.markedForDeletion);
             this.collisions = this.collisions.filter(collision => !collision.markedForDeletion);
             this.floatingMessages = this.floatingMessages.filter(message => !message.markedForDeletion);
+
+            // Check for game over due to lives
+            if (this.lives <= 0) this.gameOver = true;
         }
-        draw(context){
+
+        draw(context) {
             this.background.draw(context);
             this.player.draw(context);
-            this.enemies.forEach(enemy=>{
+            this.enemies.forEach(enemy => {
                 enemy.draw(context);
-            })
-            this.particles.forEach(particle=>{
+            });
+            this.particles.forEach(particle => {
                 particle.draw(context);
-            })
-            this.collisions.forEach(collision=>{
+            });
+            this.collisions.forEach(collision => {
                 collision.draw(context);
-            })
-            this.floatingMessages.forEach(message=>{
+            });
+            this.floatingMessages.forEach(message => {
                 message.draw(context);
-            })
+            });
             this.UI.draw(context);
         }
-        addEnemy(){
-            if (this.speed>0 && Math.random()< 0.5) this.enemies.push(new GroundEnemy(this));
-            else if (this.speed>0) this.enemies.push(new ClimbingEnemy(this))
+
+        addEnemy() {
+            if (this.speed > 0 && Math.random() < 0.5) this.enemies.push(new GroundEnemy(this));
+            else if (this.speed > 0) this.enemies.push(new ClimbingEnemy(this))
             this.enemies.push(new FlyingEnemy(this));
-            // console.log(this.enemies);
         }
     }
 
-    const game = new Game(canvas.width,canvas.height);
-    // console.log(game);
+    let game = new Game(canvas.width, canvas.height);
 
+    const buttonT = document.getElementById('buttonT');
+    const buttonE = document.getElementById('buttonE');
+
+    buttonE.addEventListener('click', e => {
+        localStorage.setItem('button','E');
+        location.reload();
+    });
+
+    buttonT.addEventListener('click', e => {
+        localStorage.setItem('button','T')
+        location.reload();
+    });
 
     let lastTime = 0;
-    function animate(timeStamp){
+
+    // function resetGame() {
+    //     game = new Game(canvas.width, canvas.height);
+    //     lastTime = 0;
+    //     animate(0);
+    // }
+    if(localStorage.getItem('button') === 'T'){
+        let timer = prompt("Enter the time you want to play: ");
+        let points = prompt("Enter the enemies you can destroy: ");
+        game.maxTime = timer*1000;
+        game.winningScore = points;
+        localStorage.removeItem('button');
+    }
+    else if(localStorage.getItem('button')==='E'){
+        game.maxTime = Infinity;
+        localStorage.removeItem('button');
+    }  
+    function animate(timeStamp) {
         const deltaTime = timeStamp - lastTime;
         lastTime = timeStamp;
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         game.update(deltaTime);
         game.draw(ctx);
-        if(!game.gameOver) requestAnimationFrame(animate);
+        if (!game.gameOver) {
+            requestAnimationFrame(animate);
+        } else {
+            console.log("Game Over! Lives: ", game.lives);
+        }
     }
     animate(0);
-})
+});
