@@ -1,32 +1,26 @@
-* {
+*{
     margin: 0;
-    border: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
-body{
-    background: black;
+.creepster-regular {
+    font-family: "Creepster", system-ui;
+    font-weight: 400;
+    font-style: normal;
 }
-
 #canvas1{
     position: absolute;
+    border: 5px solid black;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
-    border: 5px solid white;
     max-width: 100%;
     max-height: 100%;
-
 }
 
-#playerImage,#backgroundImage , #enemyImage{
+#player, #layer1, #layer2, #layer3, #layer4, #layer5,#layer1-f, #layer2-f, #layer3-f, #layer4-f, #layer5-f,#enemy_fly,#enemy_plant,#enemy_spider_big, #fire, #collisionAnimation, #lives{
     display: none;
 }
 
-#fullScreenButton{
-    position: absolute;
-    font-size: 20px;
-    padding: 10px;
-    left: 50%;
-    transform: translate(-50%);
-}
+
