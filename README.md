@@ -18,6 +18,7 @@ The game is implemented as an image project and features the following component
 - **UI**: Display user interface elements such as score, lives, and timer.
 - **Game Over**: Handle game over conditions such as running out of lives or time.
 - **Restart**: Restart the game after game over or upon user input.
+- **Change Background**: Press 'b' to swich between backgrounds.
 
 ## Credits
 
